@@ -1,0 +1,7 @@
+# CODEOWNERS
+# Replace placeholders with your actual handles or teams.
+
+*            @YOUR_GH_USER_OR_TEAM
+/src/tools/  @YOUR_GH_TOOLING_TEAM
+/.github/    @YOUR_GH_DEVEX_TEAM
+/examples/   @YOUR_GH_PM_TEAM

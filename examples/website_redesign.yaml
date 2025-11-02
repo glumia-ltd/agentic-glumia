@@ -1,0 +1,48 @@
+version: 1
+project:
+  id: website-redesign
+  goal: "Redesign marketing site and ship v1"
+  context:
+    stakeholders: ["PM", "Design", "Eng"]
+    constraints: ["mobile-first", "brand-guidelines-v3"]
+phases:
+  - id: intake
+    entry_prompt: curator
+    outputs: ["requirements.md"]
+    transitions:
+      on_complete: design
+  - id: design
+    entry_prompt: designer
+    tasks:
+      - id: wireframes
+        tool_calls: ["doc.create:wireframes.pdf"]
+      - id: spec
+        tool_calls: ["doc.create:spec.md"]
+    gate:
+      type: human_approval
+      approver: "PM"
+    transitions:
+      on_approved: implement
+  - id: implement
+    entry_prompt: implementer
+    tasks:
+      - id: repo_setup
+        tool_calls: ["doc.create:repo-plan.md"]
+      - id: feature_homepage
+        tool_calls: ["ci.run_tests"]
+    transitions:
+      on_all_tasks_green: review
+  - id: review
+    entry_prompt: qa
+    gate:
+      type: automated_checks
+      tools: ["ci.run_tests", "lighthouse.audit"]
+    transitions:
+      on_pass: ship
+  - id: ship
+    entry_prompt: release
+    tasks:
+      - id: deploy_prod
+        tool_calls: ["doc.create:release-notes.md"]
+    transitions:
+      on_complete: done

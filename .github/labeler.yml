@@ -1,0 +1,19 @@
+# .github/labeler.yml
+area/agent:
+  - changed-files:
+      - any-glob-to-any-file: ["src/**", "prompts/**"]
+area/tools:
+  - changed-files:
+      - any-glob-to-any-file: ["src/tools/**"]
+area/ci:
+  - changed-files:
+      - any-glob-to-any-file: [".github/workflows/**"]
+docs:
+  - changed-files:
+      - any-glob-to-any-file: ["README.md", "docs/**"]
+example:
+  - changed-files:
+      - any-glob-to-any-file: ["examples/**"]
+test:
+  - changed-files:
+      - any-glob-to-any-file: ["tests/**"]

@@ -1,0 +1,21 @@
+name: "Feature request"
+description: "Suggest an idea"
+labels: ["type/feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What’s the user need?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Sketch the solution, acceptance criteria, and risks.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Links, prior art, related issues.
