@@ -1,5 +1,5 @@
 # Replace these with real MCP/connector calls.
-from . import io
+from ..runtime import io
 
 def doc_create(name: str, body: str = "Draft"):
     path = io.write_artifact(name, body)

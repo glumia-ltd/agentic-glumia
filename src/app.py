@@ -1,4 +1,6 @@
 import os, argparse, yaml, sys
+from pathlib import Path
+from dotenv import load_dotenv, find_dotenv
 from pydantic import ValidationError
 from .models import Blueprint
 from .orchestrator import run_blueprint
@@ -13,9 +15,22 @@ def cmd_validate(args):
         sys.exit(1)
 
 def cmd_run(args):
+    if not os.getenv("OPENAI_API_KEY"):
+        hint = f" (looked in: {LOADED_DOTENV})" if 'LOADED_DOTENV' in globals() and LOADED_DOTENV else ""
+        print(f"OPENAI_API_KEY is not set. Add it to your .env or export it.{hint}")
+        sys.exit(1)
     run_blueprint(args.blueprint, args.prompts, approvals=None)
 
 def main():
+    # Load env from .env (search upward from CWD), with fallback to repo root
+    dotenv_path = find_dotenv(usecwd=True)
+    if not dotenv_path:
+        repo_root = Path(__file__).resolve().parents[1]
+        candidate = repo_root / ".env"
+        dotenv_path = str(candidate) if candidate.exists() else ""
+    load_dotenv(dotenv_path or None, override=True)
+    global LOADED_DOTENV
+    LOADED_DOTENV = dotenv_path
     parser = argparse.ArgumentParser(description="AI Project Agent")
     sub = parser.add_subparsers(dest="cmd")
 

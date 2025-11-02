@@ -1,0 +1,15 @@
+# Map labels to reviewers/assignees (users or teams)
+rules:
+    area/agent:
+      reviewers: ["your-org/agents-team"]     # team slug or username
+      assignees: ["alice"]
+    area/tools:
+      reviewers: ["your-org/tooling-team"]
+      assignees: ["bob"]
+    area/ci:
+      reviewers: ["your-org/devex-team"]
+      assignees: []
+    docs:
+      reviewers: ["your-org/docs-team"]
+      assignees: []
+

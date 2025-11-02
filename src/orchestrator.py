@@ -1,7 +1,9 @@
-import os, json, yaml
+import os, json, yaml, time
+import openai
 from typing import TypedDict, Literal, Dict, Any
 from langgraph.graph import StateGraph, START, END
 from openai import OpenAI
+import os
 from .runtime import io
 from .tools import tool_stubs
 from .tools.github_api import GitHub
@@ -9,7 +11,13 @@ from .tools import deploy
 from .models import Blueprint, Phase
 
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-client = OpenAI()
+_openai_client = None
+
+def _get_openai_client() -> OpenAI:
+    global _openai_client
+    if _openai_client is None:
+        _openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    return _openai_client
 
 class ProjectState(TypedDict, total=False):
     phase: str
@@ -23,13 +31,29 @@ def run_prompt(role_prompt: str, state: ProjectState) -> str:
     sys = f"You are a helpful project {state.get('phase','agent')}."
     user = f"{role_prompt}\n\nSTATE:\n{json.dumps(state, indent=2)[:6000]}"
     io.log(f"LLM ({MODEL}) <- {state.get('phase')}")
-    res = client.responses.create(
-        model=MODEL,
-        input=[
-            {"role": "system", "content": sys},
-            {"role": "user", "content": user},
-        ],
-    )
+    if os.getenv("OPENAI_OFFLINE", "").lower() in ("1", "true", "yes"):
+        return f"[OFFLINE MOCK OUTPUT] phase={state.get('phase')}\n\n{role_prompt[:200]}..."
+    client = _get_openai_client()
+    last_err = None
+    for attempt in range(3):
+        try:
+            res = client.responses.create(
+                model=MODEL,
+                input=[
+                    {"role": "system", "content": sys},
+                    {"role": "user", "content": user},
+                ],
+            )
+            break
+        except openai.RateLimitError as e:
+            wait = 2 ** attempt
+            io.log(f"Rate limited (429). Retry in {wait}s...")
+            time.sleep(wait)
+            last_err = e
+        except Exception as e:
+            raise
+    else:
+        raise last_err
     # Extract the first text output
     text = ""
     for item in res.output:
@@ -142,13 +166,19 @@ def compile_graph(bp: Blueprint, prompts: Dict[str,str]):
     # simple transitions based on 'transitions' map
     for ph in bp.phases:
         dest = ph.transitions or {}
+        # normalize special terminal aliases to END
+        def _norm_target(t):
+            if isinstance(t, str) and t.lower() in ("done", "end", "finish"):
+                return END
+            return t
+        dest2 = {k: _norm_target(v) for k, v in dest.items()}
         # map keys -> events
-        targets = set(dest.values())
+        targets = set(dest2.values())
         if not targets:
             continue
         # we’ll pick the first unique target as default
         default = list(targets)[0]
-        def route(state: ProjectState, ph=ph, dest=dest, default=default):
+        def route(state: ProjectState, ph=ph, dest=dest2, default=default):
             ev = state.get("last_event","")
             # normalize keys
             key = None

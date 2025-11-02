@@ -1,5 +1,5 @@
 import os, subprocess, shutil
-from . import io
+from ..runtime import io
 
 def vercel_deploy(cwd: str = ".", prod: bool = True):
     token = os.getenv("VERCEL_TOKEN")

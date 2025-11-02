@@ -1,0 +1,34 @@
+{
+  "area/agent": {
+    "color": "1f77b4",
+    "description": "Agent orchestration & prompts"
+  },
+  "area/tools": {
+    "color": "2ca02c",
+    "description": "External tools & connectors"
+  },
+  "area/ci": {
+    "color": "ff7f0e",
+    "description": "CI/CD, workflows, infra"
+  },
+  "docs": {
+    "color": "9370db",
+    "description": "Documentation updates"
+  },
+  "example": {
+    "color": "8c564b",
+    "description": "Examples & demos"
+  },
+  "test": {
+    "color": "e377c2",
+    "description": "Tests & fixtures"
+  },
+  "type/bug": {
+    "color": "d62728",
+    "description": "Something is broken"
+  },
+  "type/feature": {
+    "color": "17becf",
+    "description": "New feature request"
+  }
+}

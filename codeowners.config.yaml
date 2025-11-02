@@ -1,0 +1,6 @@
+# codeowners.config.yaml
+mappings:
+  "/src/tools/": ["@YOUR_GH_TOOLING_TEAM"]
+  "/.github/": ["@YOUR_GH_DEVEX_TEAM"]
+  "/examples/": ["@YOUR_GH_PM_TEAM"]
+  "*": ["@YOUR_GH_USER_OR_TEAM"]
